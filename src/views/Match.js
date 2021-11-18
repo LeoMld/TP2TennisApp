@@ -4,15 +4,18 @@ import "../css/match.css";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { Alert, Container, IconButton } from "@mui/material";
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { update } from "../reduxSlice/matchsSlice";
+import { useDispatch, useSelector } from "react-redux";
 import Title from "../components/Title";
 const SUCCESS = 1;
 const FAILURE = -1;
 
 const Match = () => {
   const { id } = useParams("id");
+  const dispatch = useDispatch();
   const userId = useSelector((state) => state.id.value);
-  const [match, setMatch] = useState(null);
+  const match = useSelector((state) => state.matchs.value[id]);
+  const matchs = useSelector((state) => state.matchs.value);
   const [player, setPlayer] = useState(0);
   const [amount, setAmount] = useState("");
   const [alert, setAlert] = useState(null);
@@ -34,7 +37,14 @@ const Match = () => {
 
   const refreshMatch = () => {
     MatchService.getMatch(id).then((res) => {
-      setMatch(res.data);
+      console.log(res.data);
+      const newMatches = matchs.map((m, index) => {
+        if (index == id) {
+          return res.data;
+        }
+        return m;
+      });
+      dispatch(update(newMatches));
     });
   };
 
