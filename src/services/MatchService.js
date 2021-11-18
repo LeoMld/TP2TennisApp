@@ -4,6 +4,7 @@ const API_URL = process.env.REACT_APP_API_URL;
 
 class MatchService {
   getMatchs() {
+    console.log(API_URL+"/parties")
     return axios.get(API_URL + "/parties");
   }
 

@@ -43,7 +43,7 @@ function Navbar() {
         const socket = io.connect("http://localhost:8000", {
           transports: ["websocket"],
         });
-        socket.emit("login", id);
+        socket.emit("login", {userId : id});
         socket.on("contestation", (data) => {
           var title;
           var message;
