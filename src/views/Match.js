@@ -1,12 +1,16 @@
 import { useParams } from "react-router";
+import styled from "styled-components";
 import MatchService from "../services/MatchService";
-import "../css/match.css";
 import RefreshIcon from "@mui/icons-material/Refresh";
-import { Alert, Container, IconButton } from "@mui/material";
+import { Alert, IconButton } from "@mui/material";
 import { useEffect, useState } from "react";
 import { update } from "../reduxSlice/matchsSlice";
 import { useDispatch, useSelector } from "react-redux";
 import Title from "../components/Title";
+import Container from "../components/Container";
+import ScoreBoard from "../components/ScoreBoard";
+import MatchHeader from "../components/MatchHeader";
+import Spacer from "../components/Spacer";
 const SUCCESS = 1;
 const FAILURE = -1;
 
@@ -27,8 +31,7 @@ const Match = () => {
 
   useEffect(() => {
     if (match && match.pointage) {
-      const numberOfSets =
-        match.pointage.manches[0] + match.pointage.manches[1];
+      const numberOfSets = match.pointage.manches[0] + match.pointage.manches[1];
       if (numberOfSets !== 0) {
         setDisabled(true);
       }
@@ -80,7 +83,7 @@ const Match = () => {
         <RefreshIcon />
       </IconButton>
       {match && (
-        <div style={{ color: "white" }}>
+        <MatchContainer>
           {alert &&
             (alert.state === SUCCESS ? (
               <Alert severity="success" onClose={() => setAlert(null)}>
@@ -91,7 +94,10 @@ const Match = () => {
                 {alert.message}
               </Alert>
             ))}
+          <MatchHeader match={match} />
+          <Spacer height="20px" />
           <ScoreBoard match={match} />
+
           <div>
             <div>
               Côte{" "}
@@ -135,61 +141,16 @@ const Match = () => {
               {disabled && <p> Can't bet after first set is played</p>}
             </div>
           </div>
-        </div>
+        </MatchContainer>
       )}
     </Container>
   );
 };
 
-const ScoreBoard = ({ match }) => {
-  const getTennisScore = (gameScore) => {
-    if (gameScore < 3) {
-      return gameScore * 15;
-    } else {
-      return 40;
-    }
-  };
-
-  return (
-    <div class="scoreboard">
-      <div class="scoreboard__player">
-        <div class={match.serveur === 0 ? "player player--serve" : "player"}>
-          <div class="player__rank">1</div>
-          <div class="player__name">{match.joueur1.prenom}</div>
-          <div class="player__surname">{match.joueur1.nom}</div>
-          <div class="player__nationality">{match.joueur1.pays}</div>
-        </div>
-        <div class="set">
-          {match.pointage.jeu.map((jeu) => (
-            <div class="set__score">{jeu[0]}</div>
-          ))}
-        </div>
-        <div class="game">
-          <div class="game__score">
-            {getTennisScore(match.pointage.echange[0])}
-          </div>
-        </div>
-      </div>
-      <div class="scoreboard__player">
-        <div class={match.serveur === 1 ? "player player--serve" : "player"}>
-          <div class="player__rank">2</div>
-          <div class="player__name">{match.joueur2.prenom}</div>
-          <div class="player__surname">{match.joueur2.nom}</div>
-          <div class="player__nationality">{match.joueur2.pays}</div>
-        </div>
-        <div class="set">
-          {match.pointage.jeu.map((jeu) => (
-            <div class="set__score">{jeu[1]}</div>
-          ))}
-        </div>
-        <div class="game">
-          <div class="game__score">
-            {getTennisScore(match.pointage.echange[1])}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 export default Match;
+
+const MatchContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
