@@ -11,6 +11,7 @@ import Container from "../components/Container";
 import ScoreBoard from "../components/ScoreBoard";
 import MatchHeader from "../components/MatchHeader";
 import Spacer from "../components/Spacer";
+import Text from "../components/Text";
 const SUCCESS = 1;
 const FAILURE = -1;
 
@@ -21,7 +22,7 @@ const Match = () => {
   const match = useSelector((state) => state.matchs.value[id]);
   const matchs = useSelector((state) => state.matchs.value);
   const [player, setPlayer] = useState(0);
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState(0);
   const [alert, setAlert] = useState(null);
   const [disabled, setDisabled] = useState(false);
 
@@ -42,7 +43,7 @@ const Match = () => {
     MatchService.getMatch(id).then((res) => {
       console.log(res.data);
       const newMatches = matchs.map((m, index) => {
-        if (index == id) {
+        if (index === id) {
           return res.data;
         }
         return m;
@@ -52,23 +53,55 @@ const Match = () => {
   };
 
   const enterBet = () => {
-    MatchService.bet(id, { amount, player, userId })
-      .then((res) => {
-        const { amount, odds, playerBet, playerIndex } = res.data;
-        const odd = playerIndex === 1 ? odds.odd1 : odds.odd2;
-        setAlert({
-          state: SUCCESS,
-          message: `Your bet on ${playerBet} of ${amount}$CAD has been registered, the odd is ${odd}.`,
-        });
-      })
-      .catch(() => {
-        setAlert({
-          state: FAILURE,
-          message: "There was an error, please try again.",
-        });
+    if (amount <= 0) {
+      setAlert({
+        state: FAILURE,
+        message: "Veuillez entrer un montant supérieur à 0$CAD s'il vous plaît.",
       });
+    } else {
+      MatchService.bet(id, { amount, player, userId })
+        .then((res) => {
+          const { amount, odds, playerBet, playerIndex } = res.data;
+          const odd = playerIndex === 1 ? odds.odd1 : odds.odd2;
+          setAlert({
+            state: SUCCESS,
+            message: `Votre paris sur ${playerBet} de ${amount}$CAD coté à ${odd}, a bien été enregistré.`,
+          });
+        })
+        .catch(() => {
+          setAlert({
+            state: FAILURE,
+            message: "Une erreur est survenue, veuillez réessayer",
+          });
+        });
+    }
+
     refreshMatch();
+    setAmount(0);
   };
+
+  function handlePlayerChoice(choice) {
+    if (player === choice) {
+      setPlayer(0);
+    } else {
+      setPlayer(choice);
+    }
+  }
+
+  function gainSimulation() {
+    let odd = 0;
+    switch (player) {
+      case 1:
+        odd = match.odds.odd1;
+        break;
+      case 2:
+        odd = match.odds.odd2;
+        break;
+      default:
+        break;
+    }
+    return Math.ceil(odd * amount * 100) / 100; //Arrondi au centième
+  }
 
   return (
     <Container>
@@ -84,63 +117,55 @@ const Match = () => {
       </IconButton>
       {match && (
         <MatchContainer>
-          {alert &&
-            (alert.state === SUCCESS ? (
-              <Alert severity="success" onClose={() => setAlert(null)}>
-                {alert.message}
-              </Alert>
-            ) : (
-              <Alert severity="error" onClose={() => setAlert(null)}>
-                {alert.message}
-              </Alert>
-            ))}
+          <div style={{ position: "absolute" }}>
+            {alert &&
+              (alert.state === SUCCESS ? (
+                <Alert severity="success" onClose={() => setAlert(null)}>
+                  {alert.message}
+                </Alert>
+              ) : (
+                <Alert severity="error" onClose={() => setAlert(null)}>
+                  {alert.message}
+                </Alert>
+              ))}
+          </div>
           <MatchHeader match={match} />
           <Spacer height="20px" />
           <ScoreBoard match={match} />
+          <Spacer height="20px" />
 
-          <div>
-            <div>
-              Côte{" "}
-              <button
-                onClick={() => {
-                  if (player === 1) {
-                    setPlayer(0);
-                  } else {
-                    setPlayer(1);
-                  }
-                }}
-                style={player === 1 ? { color: "red" } : { color: "gray" }}
-              >
-                {match.odds.odd1}
-              </button>
-              -
-              <button
-                onClick={() => {
-                  if (player === 2) {
-                    setPlayer(0);
-                  } else {
-                    setPlayer(2);
-                  }
-                }}
-                style={player === 2 ? { color: "red" } : { color: "gray" }}
-              >
-                {match.odds.odd2}
-              </button>
-            </div>
-            <div>
-              <input
-                type="number"
-                placeholder="enter your bet amount..."
-                onChange={(e) => setAmount(e.currentTarget.value)}
-              />
-            </div>
-            <div>
-              <button onClick={enterBet} disabled={disabled}>
-                Place your bet
-              </button>
-              {disabled && <p> Can't bet after first set is played</p>}
-            </div>
+          <Spacer height="10px" />
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <Text>Je paris sur </Text>
+            <Spacer width="10px" />
+            <ChoiceButton onClick={() => handlePlayerChoice(1)} active={player === 1}>
+              {match.joueur1.prenom} {match.joueur1.nom} - {match.odds.odd1}
+            </ChoiceButton>
+            <Spacer width="20px" />
+            <ChoiceButton onClick={() => handlePlayerChoice(2)} active={player === 2}>
+              {match.joueur2.prenom} {match.joueur2.nom} - {match.odds.odd2}
+            </ChoiceButton>
           </div>
+          <Spacer height="10px" />
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <BetInput
+              type="number"
+              placeholder="Enter your bet amount..."
+              value={amount}
+              disabled={disabled}
+              onChange={(e) => setAmount(e.currentTarget.value)}
+            />
+            <Spacer width="10px" />
+            <Text>Simulation du gain : {gainSimulation()}</Text>
+          </div>
+          <Spacer height="10px" />
+          <BetButton
+            onClick={enterBet}
+            disabled={disabled}
+            title={disabled && "Parier n'est plus permis après la première manche."}
+          >
+            Parier
+          </BetButton>
         </MatchContainer>
       )}
     </Container>
@@ -153,4 +178,33 @@ const MatchContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+`;
+
+const ChoiceButton = styled.button`
+  padding: 8px;
+  background-color: ${(props) => {
+    return props.active ? "#62c000" : "#FFFFFF";
+  }};
+  color: ${(props) => {
+    return props.active ? "#FFFFFF" : "#000000";
+  }};
+  border: none;
+  border-radius: 2px;
+  :hover {
+    cursor: pointer;
+  }
+`;
+
+const BetInput = styled.input`
+  padding: 8px;
+  width: 60px;
+`;
+
+const BetButton = styled.button`
+  padding: 8px;
+  border: none;
+  border-radius: 2px;
+  :hover {
+    cursor: pointer;
+  }
 `;
