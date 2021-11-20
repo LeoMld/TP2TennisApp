@@ -21,8 +21,7 @@ function Navbar() {
   };
 
   const generateID = () => {
-    const alphabet =
-      "ABCDEFGHIJKLMOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz123456789";
+    const alphabet = "ABCDEFGHIJKLMOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz123456789";
     const length = alphabet.length - 1;
     let key = "";
     for (let i = 0; i < 10; i++) {
@@ -43,18 +42,16 @@ function Navbar() {
         const socket = io.connect("http://localhost:8000", {
           transports: ["websocket"],
         });
-        socket.emit("login", {userId : id});
+        socket.emit("login", { userId: id });
         socket.on("contestation", (data) => {
           var title;
           var message;
           if (data.win) {
             title = "Contestation réussie";
-            message =
-              "le joueur " + data.contestant + " a réussi une contestation";
+            message = "le joueur " + data.contestant + " a réussi une contestation";
           } else {
             title = "Contestation échouée";
-            message =
-              "le joueur " + data.contestant + " a échoué une contestation";
+            message = "le joueur " + data.contestant + " a échoué une contestation";
           }
           showNotification(message, title);
         });
@@ -71,8 +68,7 @@ function Navbar() {
           showNotification(message, title);
         });
         socket.on("matchFinished", (data) => {
-          const message =
-            "Match gagné par " + data.winner + " contre " + data.loser;
+          const message = "Match gagné par " + data.winner + " contre " + data.loser;
           const title = "Match terminé";
           showNotification(message, title);
         });
@@ -92,17 +88,18 @@ function Navbar() {
         return () => socket.disconnect();
       });
     }
+    // eslint-disable-next-line
   }, []);
   return (
     <Router>
       <Menu>
-        <Link to="/matchs">Matchs</Link>
+        <Link to="/">Matchs</Link>
         <Link to="/paris">Mes paris</Link>
         <Link to="/profil">Profil</Link>
       </Menu>
 
       <Switch>
-        <Route exact path="/matchs">
+        <Route exact path="/">
           <Matchs />
         </Route>
         <Route path="/paris">
@@ -111,7 +108,7 @@ function Navbar() {
         <Route path="/profil">
           <Profil />
         </Route>
-        <Route path="/matchs/:id">
+        <Route path="/match/:id">
           <Match />
         </Route>
       </Switch>

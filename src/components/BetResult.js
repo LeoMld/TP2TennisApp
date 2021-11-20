@@ -31,7 +31,7 @@ function BetResult(props) {
     } else {
       setOdd(props.bet.odds.odd2);
     }
-  }, []);
+  }, [props]);
 
   return (
     <>

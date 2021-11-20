@@ -36,7 +36,11 @@ function MatchHeader(props) {
         <Player name={match.joueur2.prenom + " " + match.joueur2.nom} />
       </div>
       <Spacer height="10px" />
-      <Text fontSize={small}>0 h 57 min 5 sec</Text>
+      <Text fontSize={small}>
+        {Math.floor(match.temps_partie / 3600)} h{" "}
+        {Math.floor((match.temps_partie % 3600) / 60)} min{" "}
+        {Math.floor(match.temps_partie % 60)} sec
+      </Text>
     </CompContainer>
   );
 }

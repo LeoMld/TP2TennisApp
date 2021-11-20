@@ -25,15 +25,18 @@ function Matchs() {
         console.error(e);
       });
   };
+
   useEffect(() => {
     console.log(matchs);
   }, [matchs]);
+
   useEffect(() => {
     updateMatchs();
     const interval = setInterval(() => {
       updateMatchs();
     }, 60000);
     return () => clearInterval(interval);
+    // eslint-disable-next-line
   }, []);
 
   return (
@@ -52,9 +55,13 @@ function Matchs() {
         {matchs && matchs.length !== 0 ? (
           matchs.map((match, index) => {
             return (
-              <span onClick={() => history.push(`/matchs/${index}`)}>
+              <button
+                style={{ border: "none", padding: "0", backgroundColor: "transparent" }}
+                key={index}
+                onClick={() => history.push(`/match/${index}`)}
+              >
                 <ScoreBoard match={match} />
-              </span>
+              </button>
             );
           })
         ) : (

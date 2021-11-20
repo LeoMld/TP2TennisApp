@@ -28,6 +28,7 @@ const Match = () => {
 
   useEffect(() => {
     refreshMatch();
+    // eslint-disable-next-line
   }, []);
 
   useEffect(() => {
@@ -43,7 +44,8 @@ const Match = () => {
     MatchService.getMatch(id).then((res) => {
       console.log(res.data);
       const newMatches = matchs.map((m, index) => {
-        if (index === id) {
+        // eslint-disable-next-line
+        if (index == id) {
           return res.data;
         }
         return m;
@@ -131,6 +133,20 @@ const Match = () => {
           </div>
           <MatchHeader match={match} />
           <Spacer height="20px" />
+
+          <Text fontWeight="500">Contestations restantes</Text>
+          <div
+            style={{
+              display: "flex",
+              "justify-content": "space-between",
+              width: "300px",
+            }}
+          >
+            <Text>{3 - match.contestation[0]}</Text>
+            <Text>{3 - match.contestation[1]}</Text>
+          </div>
+          <Spacer height="20px" />
+
           <ScoreBoard match={match} />
           <Spacer height="20px" />
 
@@ -156,16 +172,17 @@ const Match = () => {
               onChange={(e) => setAmount(e.currentTarget.value)}
             />
             <Spacer width="10px" />
+            <BetButton
+              onClick={enterBet}
+              disabled={disabled}
+              //title={disabled && "Parier n'est plus permis après la première manche."}
+            >
+              Parier
+            </BetButton>
+            <Spacer width="10px" />
             <Text>Simulation du gain : {gainSimulation()}</Text>
           </div>
           <Spacer height="10px" />
-          <BetButton
-            onClick={enterBet}
-            disabled={disabled}
-            title={disabled && "Parier n'est plus permis après la première manche."}
-          >
-            Parier
-          </BetButton>
         </MatchContainer>
       )}
     </Container>
