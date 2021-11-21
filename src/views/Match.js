@@ -55,7 +55,12 @@ const Match = () => {
         return m;
       });
       dispatch(update(newMatches));
-    });
+    }).catch(()=>{
+      setAlert({
+        state: FAILURE,
+        message: "Mode hors ligne, désolé, impossible d'actualiser les données pour le moment.",
+      });
+    })
   };
 
   const enterBet = () => {
