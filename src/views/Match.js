@@ -28,6 +28,10 @@ const Match = () => {
 
   useEffect(() => {
     refreshMatch();
+    const interval = setInterval(() => {
+      refreshMatch();
+    }, 60000);
+    return () => clearInterval(interval);
     // eslint-disable-next-line
   }, []);
 
